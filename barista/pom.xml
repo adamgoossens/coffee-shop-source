@@ -15,9 +15,9 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.platform.artifact-id>quarkus-universe-bom</quarkus.platform.artifact-id>
     <quarkus.platform.group-id>io.quarkus</quarkus.platform.group-id>
-    <quarkus.platform.version>1.13.7.Final</quarkus.platform.version>
+    <quarkus.platform.version>1.11.7.Final</quarkus.platform.version>
+    <quarkus.package.type>uber-jar</quarkus.package.type>
     <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
-    <war-plugin.version>3.2.2</war-plugin.version>
   </properties>
   
   <dependencyManagement>
@@ -186,9 +186,6 @@
             </goals>
           </execution>
         </executions>
-        <configuration>
-          <uberJar>true</uberJar>
-        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
