@@ -1,0 +1,58 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: acs-scan-and-check
+spec:
+  description: >-
+    This Task can be used to scan a build image with Advanced Cluster Security, and verify
+    it for compliance against policy.
+  workspaces:
+    - name: results
+      description: Working space to hold ACS scan results
+  params:
+    - name: acs-token-secret
+      type: string
+      description: Secret that holds the ACS Central API token. Requires key 'api-token'
+    - name: acs-api-endpoint
+      type: string
+      description: "Endpoint (host:port) of the ACS service. Do not include scheme. Example: acs.example.com:443"
+    - name: image
+      description: Image to scan
+      type: string
+    - name: skip-tls-verify
+      description: "Whether to verify TLS; 'true' or 'false'"
+      type: string
+      default: "false"
+    - name: fail-severity
+      description: "Minimum severity level to cause build failures"
+      type: string
+      default: "IMPORTANT"
+  steps:
+    - name: image-vuln-scan
+      image: quay.io/agoossen/roxctl:3.66
+      env:
+        - name: ROX_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: $(params.acs-token-secret)
+              key: api-token
+      script: |
+        roxctl -e $(params.acs-api-endpoint) \
+          --insecure-skip-tls-verify=$(params.skip-tls-verify) \
+          image \
+          scan \
+          --image $(params.image)
+    - name: image-compliance-check
+      image: quay.io/agoossen/roxctl:3.66
+      env:
+        - name: ROX_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: $(params.acs-token-secret)
+              key: api-token
+      script: |
+        roxctl -e $(params.acs-api-endpoint) \
+          --insecure-skip-tls-verify=$(params.skip-tls-verify) \
+          image \
+          check \
+          --image $(params.image)
